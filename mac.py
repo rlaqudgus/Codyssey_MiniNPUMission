@@ -10,21 +10,13 @@ def mac_multiply(A, B):
     반환: Array2D (m × p)
     """
     m, n = A.size()
-    n2, p = B.size()
 
-    # 행렬 크기 검증
-    if n != n2:
-        raise ValueError(f"행렬 크기 불일치: A의 열({n}) ≠ B의 행({n2})")
+    # 결과 행렬 초기화
+    result = Array2D([[0] * n for _ in range(m)])
 
-    # 결과 행렬 초기화 (0으로 채움)
-    result = Array2D([[0] * p for _ in range(m)])
-
-    # 3중 for문 MAC 연산
+    # element-wise MAC 연산 (같은 자리끼리 곱셈)
     for i in range(m):
-        for j in range(p):
-            acc = 0                          # accumulator 초기화
-            for k in range(n):
-                acc += A.get(i, k) * B.get(k, j)  # Multiply + Accumulate
-            result.set(i, j, acc)
+        for j in range(n):
+            result.set(i, j, A.get(i, j) * B.get(i, j))  # 같은 [i][j]끼리!
 
     return result

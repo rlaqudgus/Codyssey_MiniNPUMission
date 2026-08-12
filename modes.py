@@ -2,8 +2,8 @@
 
 import json
 from models import Array2D
-from mac import matrix_multiply
-from utils import classify_pattern
+from mac import mac_multiply
+from Utils import classify_pattern
 
 
 def input_matrix(name):
@@ -12,16 +12,25 @@ def input_matrix(name):
     name: 행렬 이름 (예: 'A', 'B')
     """
     print(f"\n[ 행렬 {name} 입력 ]")
-    rows = int(input("  행 수 입력: "))
-    cols = int(input("  열 수 입력: "))
+    print("3x3 행렬 값을 입력하세요 (행 단위, 공백 구분)")
 
-    matrix = Array2D(rows, cols)
+    matrix = Array2D([[0,0,0],[0,0,0],[0,0,0]])
 
-    print(f"  {rows}x{cols} 행렬 값을 입력하세요 (행 단위, 공백 구분)")
-    for i in range(rows):
-        row_data = list(map(int, input(f"  {i+1}행: ").split()))
-        for j in range(cols):
-            matrix[i][j] = row_data[j]
+    i = 0
+    while i < 3:
+        try:
+            row_data = list(map(int, input(f"  {i+1}행: ").split()))
+
+            if len(row_data) != 3:
+                print(f"❌ 3개의 정수를 입력하세요. (현재 {len(row_data)}개)")
+                continue  # i 증가 없이 같은 행 재입력
+
+            matrix.data[i] = row_data
+            i += 1  # 정상 입력 시에만 다음 행으로
+
+        except ValueError:
+            print("❌ 정수만 입력하세요. (소수점/문자 불가)")
+            continue
 
     return matrix
 
@@ -37,7 +46,7 @@ def print_matrix(name, matrix):
     for i in range(rows):
         row = []
         for j in range(cols):
-            row.append(str(matrix[i][j]))
+            row.append(str(matrix.data[i][j]))
         print("  " + " ".join(row))
 
 
@@ -57,22 +66,28 @@ def mode1():
     """
     print("\n========== MODE 1: 직접 입력 ==========")
 
-    A = input_matrix("A")
-    B = input_matrix("B")
+    # 필터 입력
+    A = input_matrix("Filter A")
+    B = input_matrix("Filter B")
 
-    # 행렬 크기 검증 (A의 열 수 == B의 행 수)
-    a_rows, a_cols = A.size()
-    b_rows, b_cols = B.size()
+    # # 행렬 크기 검증 (A의 열 수 == B의 행 수)
+    # a_rows, a_cols = A.size()
+    # b_rows, b_cols = B.size()
 
-    if a_cols != b_rows:
-        print(f"\n❌ 오류: A의 열({a_cols}) != B의 행({b_rows}) → 곱셈 불가")
-        return
+    # if a_cols != b_rows:
+    #     print(f"\n❌ 오류: A의 열({a_cols}) != B의 행({b_rows}) → 곱셈 불가")
+    #     return
 
-    # 행렬 곱셈 + 패턴 판별
-    C = matrix_multiply(A, B)
+    # 패턴 입력
+    C = input_matrix("Pattern")
+
+    D = mac_multiply(A, C)
+    E = mac_multiply(B, C)
     pattern = classify_pattern(A)
 
-    print_result(A, B, C, pattern)
+    #print_result(A, B, C, pattern)
+    print_matrix("A x pattern",D)
+    print_matrix("B x pattern",E)
     print("\n✅ 완료!")
 
 
@@ -111,7 +126,7 @@ def mode2():
                 B[i][j] = raw_B[i][j]
 
         # 행렬 곱셈 + 패턴 판별
-        C = matrix_multiply(A, B)
+        C = mac_multiply(A, B)
         pattern = classify_pattern(A)
         expected = tc["expected_pattern"]
 
